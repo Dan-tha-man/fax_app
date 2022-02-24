@@ -24,13 +24,15 @@ class User extends Requester {
       "user": username,
       "password": password
     };
-    String url = "_matrix/client/r0/login";
+    String url = "_matrix/client/v3/login";
 
     Map response = await super.postRequest(client, url, data: payload);
 
     accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
     userID = response["user_id"];
     deviceID = response["device_id"];
+
+    print(response);
   }
 
   Future<void> sendMessage(
@@ -72,15 +74,15 @@ class User extends Requester {
       payload["room_alias_name"] = alias;
     }
 
-    Map response =
-        super.postRequest(client, url, data: payload, headers: accessToken);
+    Map response = await super
+        .postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 
   Future<void> listRooms(http.Client client) async {
     String url = "/_matrix/client/v3/joined_rooms";
 
-    Map response = super.getRequest(client, url, headers: accessToken);
+    Map response = await super.getRequest(client, url, headers: accessToken);
     print(response);
   }
 
@@ -89,8 +91,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/rooms/$roomID:$server/invite";
     Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
-    Map response =
-        super.postRequest(client, url, data: payload, headers: accessToken);
+    Map response = await super
+        .postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 
@@ -99,8 +101,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/knock/$roomID:$server";
     Map payload = {"reason": reason};
 
-    Map response =
-        super.postRequest(client, url, data: payload, headers: accessToken);
+    Map response = await super
+        .postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 }
