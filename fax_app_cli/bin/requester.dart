@@ -6,7 +6,7 @@ class Requester {
 
   Requester(this.server);
 
-  post(http.Client client, String url,
+  postRequest(http.Client client, String url,
       {Map? data, Map<String, String>? headers}) async {
     Map decodedResponse;
     http.Response response;
@@ -27,7 +27,7 @@ class Requester {
     return decodedResponse;
   }
 
-  put(http.Client client, String url,
+  putRequest(http.Client client, String url,
       {Map? data, Map<String, String>? headers}) async {
     Map decodedResponse;
     http.Response response;
@@ -48,7 +48,8 @@ class Requester {
     return decodedResponse;
   }
 
-  get(http.Client client, String url, {Map<String, String>? headers}) async {
+  getRequest(http.Client client, String url,
+      {Map<String, String>? headers}) async {
     Map decodedResponse;
     http.Response response;
 

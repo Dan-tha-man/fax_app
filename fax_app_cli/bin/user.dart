@@ -26,7 +26,7 @@ class User extends Requester {
     };
     String url = "_matrix/client/r0/login";
 
-    Map response = await super.post(client, url, data: payload);
+    Map response = await super.postRequest(client, url, data: payload);
 
     accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
     userID = response["user_id"];
@@ -39,15 +39,15 @@ class User extends Requester {
         "_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
     Map payload = {"msgtype": "m.text", "body": message};
 
-    Map response =
-        await super.put(client, url, data: payload, headers: accessToken);
+    Map response = await super
+        .putRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 
   Future<void> joinRoom(http.Client client, String roomID) async {
     String url = "/_matrix/client/v3/join/$roomID:$server";
 
-    Map response = await super.post(client, url, headers: accessToken);
+    Map response = await super.postRequest(client, url, headers: accessToken);
     print(response);
   }
 
@@ -72,14 +72,15 @@ class User extends Requester {
       payload["room_alias_name"] = alias;
     }
 
-    Map response = super.post(client, url, data: payload, headers: accessToken);
+    Map response =
+        super.postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 
   Future<void> listRooms(http.Client client) async {
     String url = "/_matrix/client/v3/joined_rooms";
 
-    Map response = super.get(client, url, headers: accessToken);
+    Map response = super.getRequest(client, url, headers: accessToken);
     print(response);
   }
 
@@ -88,7 +89,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/rooms/$roomID:$server/invite";
     Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
-    Map response = super.post(client, url, data: payload, headers: accessToken);
+    Map response =
+        super.postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 
@@ -97,7 +99,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/knock/$roomID:$server";
     Map payload = {"reason": reason};
 
-    Map response = super.post(client, url, data: payload, headers: accessToken);
+    Map response =
+        super.postRequest(client, url, data: payload, headers: accessToken);
     print(response);
   }
 }
