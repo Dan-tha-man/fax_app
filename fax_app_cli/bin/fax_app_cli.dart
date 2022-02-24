@@ -15,5 +15,9 @@ void main(List<String> arguments) async {
   };
 
   var user = u.User(userData);
-  user.login(client);
+  await user.login(client);
+  await user.joinRoom(client, "!QpeulGJrJPvafTNtiG");
+  await user.createRoom(client, "testRoom", "test room test");
+  await user.sendMessage(client, "yo whats up", "!QpeulGJrJPvafTNtiG");
+  await user.listRooms(client);
 }
