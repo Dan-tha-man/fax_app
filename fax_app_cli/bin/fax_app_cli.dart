@@ -17,7 +17,10 @@ void main(List<String> arguments) async {
   var user = u.User(userData);
   await user.login(client);
   await user.joinRoom(client, "!QpeulGJrJPvafTNtiG");
-  await user.createRoom(client, "testRoom", "test room test");
+  await user.createRoom(client, "testRoom", "private_chat", "test room test",
+      alias: "testalias42");
   await user.sendMessage(client, "yo whats up", "!QpeulGJrJPvafTNtiG");
   await user.listRooms(client);
+  await user.inviteToRoom(client, "!QpeulGJrJPvafTNtiG", "testuser", "reason");
+  await user.knockOnRoom(client, "!QpeulGJrJPvafTNtiG", "reason");
 }

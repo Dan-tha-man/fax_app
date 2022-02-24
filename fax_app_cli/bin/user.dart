@@ -1,11 +1,11 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:math';
+import 'package:http/http.dart' as http;
 
-class User {
+import 'requester.dart';
+
+class User extends Requester {
   String username;
   String password;
-  String server;
   List<String> rooms;
 
   late Map<String, String>? accessToken;
@@ -15,132 +15,84 @@ class User {
   User(Map jsonData)
       : username = jsonData["username"],
         password = jsonData["password"],
-        server = jsonData["server"],
-        rooms = jsonData["roomIDs"];
+        rooms = jsonData["roomIDs"],
+        super(jsonData["server"]);
 
   Future<void> login(http.Client client) async {
-    Map data = {
+    Map payload = {
       "type": "m.login.password",
       "user": username,
       "password": password
     };
-    var jsonData = json.encode(data);
-    try {
-      var response = await client
-          .post(Uri.https(server, "_matrix/client/r0/login"), body: jsonData);
-      var decodedResponse = jsonDecode(response.body) as Map;
+    String url = "_matrix/client/r0/login";
 
-      accessToken = {
-        "Authorization": "Bearer ${decodedResponse["access_token"]}"
-      };
-      userID = decodedResponse["user_id"];
-      deviceID = decodedResponse["device_id"];
-      print(accessToken);
-    } catch (e) {
-      print("Error: $e");
-    }
+    Map response = await testResponse(super.post(client, url, data: payload));
+
+    accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
+    userID = response["user_id"];
+    deviceID = response["device_id"];
   }
 
   Future<void> sendMessage(
-      http.Client client, String? message, String room) async {
-    Map data = {"msgtype": "m.text", "body": message};
-    var jsonData = json.encode(data);
-
+      http.Client client, String message, String roomID) async {
     String url =
-        "_matrix/client/v3/rooms/$room:$server/send/m.room.message/${getRandomString(3)}";
-    try {
-      var response = await client.put(Uri.https(server, url),
-          headers: accessToken, body: jsonData);
-      var decodedResponse = jsonDecode(response.body) as Map;
+        "_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
+    Map payload = {"msgtype": "m.text", "body": message};
 
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
-    }
+    await testResponse(
+        super.put(client, url, data: payload, headers: accessToken));
   }
 
-  Future<void> joinRoom(http.Client client, String room) async {
-    String url = "/_matrix/client/v3/join/$room:$server";
-    try {
-      var response =
-          await client.post(Uri.https(server, url), headers: accessToken);
-      var decodedResponse = jsonDecode(response.body) as Map;
+  Future<void> joinRoom(http.Client client, String roomID) async {
+    String url = "/_matrix/client/v3/join/$roomID:$server";
 
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
-    }
+    await testResponse(super.post(client, url, headers: accessToken));
   }
 
   // TODO add ability to invite users when making a room
-  // TODO different room preset options
   Future<void> createRoom(
-      http.Client client, String roomName, String topic) async {
+      http.Client client, String roomName, String preset, String topic,
+      {String? alias, String? visibility}) async {
     String url = "/_matrix/client/v3/createRoom";
-    Map data = {
+    Map payload = {
       "creation_content": {"m.federate": false},
       "name": roomName,
-      "preset": "public_chat",
-      "room_alias_name": "testalias4",
-      "topic": topic,
-      "visibility": "public"
+      "preset": preset,
+      "topic": topic
     };
-    var jsonData = json.encode(data);
 
-    try {
-      var response = await client.post(Uri.https(server, url),
-          headers: accessToken, body: jsonData);
-      var decodedResponse = jsonDecode(response.body) as Map;
-
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
+    if (alias != null && visibility != null) {
+      payload["room_alias_name"] = alias;
+      payload["visibility"] = visibility;
+    } else if (alias == null && visibility != null) {
+      payload["visibility"] = visibility;
+    } else if (alias != null && visibility == null) {
+      payload["room_alias_name"] = alias;
     }
+
+    testResponse(super.post(client, url, data: payload, headers: accessToken));
   }
 
   Future<void> listRooms(http.Client client) async {
     String url = "/_matrix/client/v3/joined_rooms";
-    try {
-      var response =
-          await client.get(Uri.https(server, url), headers: accessToken);
-      var decodedResponse = jsonDecode(response.body) as Map;
 
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
-    }
+    testResponse(super.get(client, url, headers: accessToken));
   }
 
-  Future<void> inviteToRoom(http.Client client, String room,
+  Future<void> inviteToRoom(http.Client client, String roomID,
       String userToInvite, String? reason) async {
-    String url = "/_matrix/client/v3/rooms/$room:$server/invite";
-    Map data = {"reason": reason, "user_id": userToInvite};
-    var jsonData = json.encode(data);
-    try {
-      var response = await client.post(Uri.https(server, url),
-          headers: accessToken, body: jsonData);
-      var decodedResponse = jsonDecode(response.body) as Map;
+    String url = "/_matrix/client/v3/rooms/$roomID:$server/invite";
+    Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
-    }
+    testResponse(super.post(client, url, data: payload, headers: accessToken));
   }
 
   Future<void> knockOnRoom(
-      http.Client client, String room, String? reason) async {
-    String url = "/_matrix/client/v3/knock/$room:$server";
-    Map data = {"reason": reason};
-    var jsonData = json.encode(data);
-    try {
-      var response = await client.post(Uri.https(server, url),
-          headers: accessToken, body: jsonData);
-      var decodedResponse = jsonDecode(response.body) as Map;
+      http.Client client, String roomID, String? reason) async {
+    String url = "/_matrix/client/v3/knock/$roomID:$server";
+    Map payload = {"reason": reason};
 
-      print(decodedResponse);
-    } catch (e) {
-      print("Error: $e");
-    }
+    testResponse(super.post(client, url, data: payload, headers: accessToken));
   }
 }
 
@@ -148,4 +100,15 @@ String getRandomString(int len) {
   var r = Random();
   return String.fromCharCodes(
       List.generate(len, (index) => r.nextInt(33) + 89));
+}
+
+Future<Map> testResponse(Future response) async {
+  try {
+    Map decodedResponse = await response;
+    print(decodedResponse); //!for testing only
+    return decodedResponse;
+  } catch (e) {
+    print("Error: $e");
+    return {"error": e};
+  }
 }
