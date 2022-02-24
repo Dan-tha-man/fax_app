@@ -26,7 +26,7 @@ class User extends Requester {
     };
     String url = "_matrix/client/r0/login";
 
-    Map response = await testResponse(super.post(client, url, data: payload));
+    Map response = await super.post(client, url, data: payload);
 
     accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
     userID = response["user_id"];
@@ -39,14 +39,16 @@ class User extends Requester {
         "_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
     Map payload = {"msgtype": "m.text", "body": message};
 
-    await testResponse(
-        super.put(client, url, data: payload, headers: accessToken));
+    Map response =
+        await super.put(client, url, data: payload, headers: accessToken);
+    print(response);
   }
 
   Future<void> joinRoom(http.Client client, String roomID) async {
     String url = "/_matrix/client/v3/join/$roomID:$server";
 
-    await testResponse(super.post(client, url, headers: accessToken));
+    Map response = await super.post(client, url, headers: accessToken);
+    print(response);
   }
 
   // TODO add ability to invite users when making a room
@@ -70,13 +72,15 @@ class User extends Requester {
       payload["room_alias_name"] = alias;
     }
 
-    testResponse(super.post(client, url, data: payload, headers: accessToken));
+    Map response = super.post(client, url, data: payload, headers: accessToken);
+    print(response);
   }
 
   Future<void> listRooms(http.Client client) async {
     String url = "/_matrix/client/v3/joined_rooms";
 
-    testResponse(super.get(client, url, headers: accessToken));
+    Map response = super.get(client, url, headers: accessToken);
+    print(response);
   }
 
   Future<void> inviteToRoom(http.Client client, String roomID,
@@ -84,7 +88,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/rooms/$roomID:$server/invite";
     Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
-    testResponse(super.post(client, url, data: payload, headers: accessToken));
+    Map response = super.post(client, url, data: payload, headers: accessToken);
+    print(response);
   }
 
   Future<void> knockOnRoom(
@@ -92,7 +97,8 @@ class User extends Requester {
     String url = "/_matrix/client/v3/knock/$roomID:$server";
     Map payload = {"reason": reason};
 
-    testResponse(super.post(client, url, data: payload, headers: accessToken));
+    Map response = super.post(client, url, data: payload, headers: accessToken);
+    print(response);
   }
 }
 
@@ -100,15 +106,4 @@ String getRandomString(int len) {
   var r = Random();
   return String.fromCharCodes(
       List.generate(len, (index) => r.nextInt(33) + 89));
-}
-
-Future<Map> testResponse(Future response) async {
-  try {
-    Map decodedResponse = await response;
-    print(decodedResponse); //!for testing only
-    return decodedResponse;
-  } catch (e) {
-    print("Error: $e");
-    return {"error": e};
-  }
 }
