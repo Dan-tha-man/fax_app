@@ -1,22 +1,30 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'user.dart' as u;
+import 'user_info.dart';
 
 void main(List<String> arguments) async {
-  var client = http.Client();
-  const server = "11stein.com";
-  String username = "test_user";
-  String password = "testpassword";
+  http.Client client = http.Client();
+  u.User user;
 
-  Map userData = {
-    "username": username,
-    "password": password,
-    "server": server,
-    "roomIDs": ["hi", "hello"]
-  };
+  Directory dir = await Directory('fax_app_cli').create(recursive: true);
+  String fileName = "user_data.json";
+  String filePath = dir.path + "/" + fileName;
 
-  var user = u.User(userData);
+  UserInfo? info = await checkForUserInfo(filePath);
+
+  if (info != null) {
+    user = u.User(info);
+  } else {
+    user = u.User(getUserInfo(filePath));
+    print("Enter your password: ");
+    await user.login(client, stdin.readLineSync());
+  }
+
+  // TODO make a CLI to access different commands
   try {
-    await user.login(client);
     await user.joinRoom(client, "!QpeulGJrJPvafTNtiG");
     await user.createRoom(client, "testRoom", "private_chat", "test room test",
         alias: "testalias42");
@@ -27,5 +35,27 @@ void main(List<String> arguments) async {
     await user.knockOnRoom(client, "!QpeulGJrJPvafTNtiG", "reason");
   } catch (e) {
     print("Error: $e");
+  }
+}
+
+UserInfo getUserInfo(String filePath) {
+  print("Enter the server: ");
+  String server = stdin.readLineSync() as String;
+  print("Enter your username: ");
+  String username = stdin.readLineSync() as String;
+
+  return UserInfo(username: username, server: server, filePath: filePath);
+}
+
+Future<UserInfo?> checkForUserInfo(String filePath) async {
+  File jsonFile = File(filePath);
+
+  bool fileExists = jsonFile.existsSync();
+
+  if (fileExists) {
+    return UserInfo.fromJson(jsonDecode(await jsonFile.readAsString()));
+  } else {
+    jsonFile.createSync();
+    return null;
   }
 }
