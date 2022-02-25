@@ -11,16 +11,16 @@ class Requester {
     Map decodedResponse;
     http.Response response;
     var jsonData = json.encode(data);
+    Uri fullURL = Uri.https(server, url);
 
     if (headers != null && data != null) {
-      response = await client.post(Uri.https(server, url),
-          body: jsonData, headers: headers);
+      response = await client.post(fullURL, body: jsonData, headers: headers);
     } else if (headers == null && data != null) {
-      response = await client.post(Uri.https(server, url), body: jsonData);
+      response = await client.post(fullURL, body: jsonData);
     } else if (headers != null && data == null) {
-      response = await client.post(Uri.https(server, url), headers: headers);
+      response = await client.post(fullURL, headers: headers);
     } else {
-      response = await client.post(Uri.https(server, url));
+      response = await client.post(fullURL);
     }
 
     decodedResponse = jsonDecode(response.body);
@@ -32,16 +32,16 @@ class Requester {
     Map decodedResponse;
     http.Response response;
     var jsonData = json.encode(data);
+    Uri fullURL = Uri.https(server, url);
 
     if (headers != null && data != null) {
-      response = await client.put(Uri.https(server, url),
-          body: jsonData, headers: headers);
+      response = await client.put(fullURL, body: jsonData, headers: headers);
     } else if (headers == null && data != null) {
-      response = await client.put(Uri.https(server, url), body: jsonData);
+      response = await client.put(fullURL, body: jsonData);
     } else if (headers != null && data == null) {
-      response = await client.put(Uri.https(server, url), headers: headers);
+      response = await client.put(fullURL, headers: headers);
     } else {
-      response = await client.put(Uri.https(server, url));
+      response = await client.put(fullURL);
     }
 
     decodedResponse = jsonDecode(response.body);
@@ -52,11 +52,12 @@ class Requester {
       {Map<String, String>? headers}) async {
     Map decodedResponse;
     http.Response response;
+    Uri fullURL = Uri.https(server, url);
 
     if (headers == null) {
-      response = await client.get(Uri.https(server, url));
+      response = await client.get(fullURL);
     } else {
-      response = await client.get(Uri.https(server, url), headers: headers);
+      response = await client.get(fullURL, headers: headers);
     }
 
     decodedResponse = jsonDecode(response.body);

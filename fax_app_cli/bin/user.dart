@@ -16,7 +16,7 @@ class User extends Requester {
       "password": password,
       "device_id": info.deviceID ?? getRandomString(10)
     };
-    String url = "_matrix/client/v3/login";
+    String url = "/_matrix/client/v3/login";
 
     Map response = await super.postRequest(client, url, data: payload);
 
@@ -31,7 +31,7 @@ class User extends Requester {
   Future<void> sendMessage(
       http.Client client, String message, String roomID) async {
     String url =
-        "_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
+        "/_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
     Map payload = {"msgtype": "m.text", "body": message};
 
     Map response = await super
