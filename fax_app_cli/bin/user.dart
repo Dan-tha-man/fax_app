@@ -1,38 +1,37 @@
 import 'dart:math';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'dart:convert';
 
 import 'requester.dart';
+import 'user_info.dart';
 
 class User extends Requester {
-  String username;
-  String password;
-  List<String> rooms;
+  UserInfo info;
 
-  late Map<String, String>? accessToken;
-  late String? userID;
-  late String? deviceID;
+  User(this.info) : super(info.server);
 
-  User(Map jsonData)
-      : username = jsonData["username"],
-        password = jsonData["password"],
-        rooms = jsonData["roomIDs"],
-        super(jsonData["server"]);
+  void writeInfoToFile() {
+    File jsonFile = File(info.filePath);
+    jsonFile.writeAsString(jsonEncode(info.toJson()));
+  }
 
-  Future<void> login(http.Client client) async {
+  Future<void> login(http.Client client, String? password) async {
     Map payload = {
       "type": "m.login.password",
-      "user": username,
+      "user": info.username,
       "password": password
     };
     String url = "_matrix/client/v3/login";
 
     Map response = await super.postRequest(client, url, data: payload);
 
-    accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
-    userID = response["user_id"];
-    deviceID = response["device_id"];
+    info.accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
+    info.userID = response["user_id"];
+    info.deviceID = response["device_id"];
 
     print(response);
+    writeInfoToFile();
   }
 
   Future<void> sendMessage(
@@ -42,14 +41,15 @@ class User extends Requester {
     Map payload = {"msgtype": "m.text", "body": message};
 
     Map response = await super
-        .putRequest(client, url, data: payload, headers: accessToken);
+        .putRequest(client, url, data: payload, headers: info.accessToken);
     print(response);
   }
 
   Future<void> joinRoom(http.Client client, String roomID) async {
     String url = "/_matrix/client/v3/join/$roomID:$server";
 
-    Map response = await super.postRequest(client, url, headers: accessToken);
+    Map response =
+        await super.postRequest(client, url, headers: info.accessToken);
     print(response);
   }
 
@@ -75,14 +75,15 @@ class User extends Requester {
     }
 
     Map response = await super
-        .postRequest(client, url, data: payload, headers: accessToken);
+        .postRequest(client, url, data: payload, headers: info.accessToken);
     print(response);
   }
 
   Future<void> listRooms(http.Client client) async {
     String url = "/_matrix/client/v3/joined_rooms";
 
-    Map response = await super.getRequest(client, url, headers: accessToken);
+    Map response =
+        await super.getRequest(client, url, headers: info.accessToken);
     print(response);
   }
 
@@ -92,7 +93,7 @@ class User extends Requester {
     Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
     Map response = await super
-        .postRequest(client, url, data: payload, headers: accessToken);
+        .postRequest(client, url, data: payload, headers: info.accessToken);
     print(response);
   }
 
@@ -102,7 +103,7 @@ class User extends Requester {
     Map payload = {"reason": reason};
 
     Map response = await super
-        .postRequest(client, url, data: payload, headers: accessToken);
+        .postRequest(client, url, data: payload, headers: info.accessToken);
     print(response);
   }
 }
