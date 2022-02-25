@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'user.dart' as u;
+
+import 'user.dart';
 import 'user_info.dart';
 
 void main(List<String> arguments) async {
   http.Client client = http.Client();
-  u.User user;
+  User user;
 
   Directory dir = await Directory('fax_app_cli').create(recursive: true);
   String fileName = "user_data.json";
@@ -16,9 +17,9 @@ void main(List<String> arguments) async {
   UserInfo? info = await checkForUserInfo(filePath);
 
   if (info != null) {
-    user = u.User(info);
+    user = User(info);
   } else {
-    user = u.User(getUserInfo(filePath));
+    user = User(getUserInfo(filePath));
     print("Enter your password: ");
     await user.login(client, stdin.readLineSync());
   }

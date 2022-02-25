@@ -1,7 +1,5 @@
 import 'dart:math';
 import 'package:http/http.dart' as http;
-import 'dart:io';
-import 'dart:convert';
 
 import 'requester.dart';
 import 'user_info.dart';
@@ -15,7 +13,8 @@ class User extends Requester {
     Map payload = {
       "type": "m.login.password",
       "user": info.username,
-      "password": password
+      "password": password,
+      "device_id": info.deviceID ?? getRandomString(10)
     };
     String url = "_matrix/client/v3/login";
 
