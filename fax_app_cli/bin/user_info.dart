@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:convert';
+
 class UserInfo {
   String username;
   String server;
@@ -41,5 +44,10 @@ class UserInfo {
       "deviceID": deviceID,
       "accessToken": accessToken
     };
+  }
+
+  void writeToFile() {
+    File jsonFile = File(filePath);
+    jsonFile.writeAsString(jsonEncode(toJson()));
   }
 }

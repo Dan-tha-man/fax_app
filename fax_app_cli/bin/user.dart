@@ -11,11 +11,6 @@ class User extends Requester {
 
   User(this.info) : super(info.server);
 
-  void writeInfoToFile() {
-    File jsonFile = File(info.filePath);
-    jsonFile.writeAsString(jsonEncode(info.toJson()));
-  }
-
   Future<void> login(http.Client client, String? password) async {
     Map payload = {
       "type": "m.login.password",
@@ -31,7 +26,7 @@ class User extends Requester {
     info.deviceID = response["device_id"];
 
     print(response);
-    writeInfoToFile();
+    info.writeToFile();
   }
 
   Future<void> sendMessage(
