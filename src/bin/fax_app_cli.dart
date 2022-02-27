@@ -10,7 +10,7 @@ void main(List<String> arguments) async {
   http.Client client = http.Client();
   User user;
 
-  Directory dir = await Directory('fax_app_cli').create(recursive: true);
+  Directory dir = await Directory('src').create(recursive: true);
   String fileName = "user_data.json";
   String filePath = dir.path + "/" + fileName;
 
@@ -37,6 +37,8 @@ void main(List<String> arguments) async {
   } catch (e) {
     print("Error: $e");
   }
+
+  client.close();
 }
 
 UserInfo getUserInfo(String filePath) {
