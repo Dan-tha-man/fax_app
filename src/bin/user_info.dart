@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:core';
 
 class UserInfo {
-  String username;
-  String server;
-  String filePath;
+  late String username;
+  late String server;
+  late String filePath;
   String? userID;
   String? deviceID;
   Map<String, String>? accessToken;
@@ -17,22 +18,13 @@ class UserInfo {
       this.deviceID,
       this.accessToken});
 
-  factory UserInfo.fromJson(Map<String, dynamic> data) {
-    final username = data["username"] as String;
-    final server = data["server"] as String;
-    final filePath = data["filePath"] as String;
-    final userID = data["userID"] as String?;
-    final deviceID = data["deviceID"] as String?;
-    final token = data["accessToken"]["Authorization"] as String?;
-    final accessToken = {"Authorization": "$token"};
-
-    return UserInfo(
-        username: username,
-        server: server,
-        filePath: filePath,
-        userID: userID,
-        deviceID: deviceID,
-        accessToken: accessToken);
+  UserInfo.fromJson(Map<String, dynamic> data) {
+    username = data["username"] as String;
+    server = data["server"] as String;
+    filePath = data["filePath"] as String;
+    userID = data["userID"] as String?;
+    deviceID = data["deviceID"] as String?;
+    accessToken = data["accessToken"].cast<String, String>();
   }
 
   Map<String, dynamic> toJson() {
@@ -47,7 +39,8 @@ class UserInfo {
   }
 
   void writeToFile() {
+    const JsonEncoder json = JsonEncoder.withIndent('    ');
     File jsonFile = File(filePath);
-    jsonFile.writeAsString(jsonEncode(toJson()));
+    jsonFile.writeAsString(json.convert(toJson()));
   }
 }
