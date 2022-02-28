@@ -9,8 +9,10 @@ import 'user_info.dart';
 void main(List<String> arguments) async {
   http.Client client = http.Client();
   User user;
-
-  Directory dir = await Directory('src').create(recursive: true);
+  Uri pathToScript = Platform.script;
+  Directory baseDir = Directory.fromUri(pathToScript).parent.parent.parent;
+  Directory dir =
+      await Directory(baseDir.path + '/src').create(recursive: true);
   String fileName = "user_data.json";
   String filePath = dir.path + "/" + fileName;
 
