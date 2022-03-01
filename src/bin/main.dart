@@ -52,6 +52,16 @@ void main(List<String> args) async {
   }
 
   switch (parserResults['command']) {
+    case 'sync':
+      {
+        await user.sync(client);
+      }
+      break;
+    case 'messages':
+      {
+        await user.getNewMessages(client, parserResults['roomID']);
+      }
+      break;
     case 'join':
       {
         await user.joinRoom(client, parserResults['roomID']);

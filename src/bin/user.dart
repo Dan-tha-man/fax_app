@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 
 import 'requester.dart';
 import 'user_info.dart';
+import "message_update.dart";
 
 class User extends Requester {
   UserInfo info;
@@ -26,6 +27,47 @@ class User extends Requester {
 
     print(response);
     info.writeToFile();
+  }
+
+  Future<void> sync(http.Client client) async {
+    String url = "/_matrix/client/v3/sync";
+    Map<String, dynamic> payload = {"since": info.syncPrevBatch};
+    print(payload);
+    Map response = await super
+        .getRequest(client, url, data: payload, headers: info.accessToken);
+
+    info.syncPrevBatch = response["next_batch"] as String;
+    info.syncNewest = true;
+    info.writeToFile();
+    print(info.syncPrevBatch);
+
+    print(response);
+  }
+
+  Future<void> getNewMessages(http.Client client, String roomID) async {
+    String url = "/_matrix/client/v3/rooms/$roomID:$server/messages";
+    Map<String, dynamic> payload;
+    if (info.syncNewest ?? true) {
+      payload = {"from": info.syncPrevBatch};
+    } else {
+      payload = {"from": info.rooms[roomID]["prevBatch"]};
+    }
+    Map response = await super
+        .getRequest(client, url, data: payload, headers: info.accessToken);
+
+    info.rooms[roomID] = {"prevBatch": response["end"] as String};
+    info.syncNewest = false;
+    info.writeToFile();
+
+    MessageUpdate newMessages =
+        MessageUpdate.fromJson(response.cast<String, dynamic>());
+
+    for (MessageInfo message in newMessages.messages) {
+      print(message.content);
+      print(message.sentAt);
+    }
+
+    print(response);
   }
 
   Future<void> sendMessage(
