@@ -29,7 +29,10 @@ void main(List<String> args) async {
   http.Client client = http.Client();
   User user;
 
-  Directory dir = Directory('src');
+  Uri pathToScript = Platform.script;
+  Directory baseDir = Directory.fromUri(pathToScript).parent.parent.parent;
+  Directory dir =
+      await Directory(baseDir.path + '/src').create(recursive: true);
   String fileName = "user_data.json";
   String filePath = dir.path + "/" + fileName;
 
@@ -86,26 +89,19 @@ void main(List<String> args) async {
       break;
     default:
   }
+
   client.close();
 }
 
 Future<UserInfo?> checkForUserInfo(String filePath) async {
   File jsonFile = File(filePath);
 
-  bool fileExists = jsonFile.existsSync();
+  bool fileExists = await jsonFile.exists();
 
   if (fileExists) {
     return UserInfo.fromJson(jsonDecode(await jsonFile.readAsString()));
   } else {
-    jsonFile.createSync();
+    await jsonFile.create();
     return null;
   }
-}
-
-UserInfo getUserInfo(String filePath, String server) {
-  String server = stdin.readLineSync() as String;
-  print("Enter your username: ");
-  String username = stdin.readLineSync() as String;
-
-  return UserInfo(username: username, server: server, filePath: filePath);
 }
