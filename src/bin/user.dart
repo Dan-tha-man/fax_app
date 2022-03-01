@@ -39,7 +39,6 @@ class User extends Requester {
     info.syncPrevBatch = response["next_batch"] as String;
     info.syncNewest = true;
     info.writeToFile();
-    print(info.syncPrevBatch);
 
     print(response);
   }
@@ -66,6 +65,8 @@ class User extends Requester {
       print(message.content);
       print(message.sentAt);
     }
+
+    newMessages.writeToFile();
 
     print(response);
   }

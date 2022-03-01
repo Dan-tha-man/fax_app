@@ -1,7 +1,8 @@
 import 'dart:core';
-import 'json_file_handler.dart';
+import 'dart:io';
+import 'dart:convert';
 
-class UserInfo with JsonFileHandler {
+class UserInfo {
   late String username;
   late String server;
   late String filePath;
@@ -49,6 +50,8 @@ class UserInfo with JsonFileHandler {
   }
 
   void writeToFile() {
-    super.write(filePath, toJson());
+    const JsonEncoder json = JsonEncoder.withIndent('    ');
+    File jsonFile = File(filePath);
+    jsonFile.writeAsString(json.convert(toJson()));
   }
 }
