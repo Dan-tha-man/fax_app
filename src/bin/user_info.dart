@@ -17,7 +17,6 @@ class UserInfo {
       {required this.username,
       required this.server,
       required this.filePath,
-      this.syncNewest,
       this.syncPrevBatch,
       this.userID,
       this.deviceID,
@@ -27,7 +26,6 @@ class UserInfo {
     username = data["username"] as String;
     server = data["server"] as String;
     filePath = data["filePath"] as String;
-    syncNewest = data["syncNewest"] as bool?;
     syncPrevBatch = data["syncPrevBatch"] as String?;
     rooms = data["rooms"].cast<String, dynamic>();
     userID = data["userID"] as String?;
@@ -40,7 +38,6 @@ class UserInfo {
       "username": username,
       "server": server,
       "filePath": filePath,
-      "syncNewest": syncNewest,
       "syncPrevBatch": syncPrevBatch,
       "rooms": rooms,
       "userID": userID,

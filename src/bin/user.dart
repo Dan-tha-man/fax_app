@@ -46,7 +46,7 @@ class User extends Requester {
   Future<void> getNewMessages(http.Client client, String roomID) async {
     String url = "/_matrix/client/v3/rooms/$roomID:$server/messages";
     Map<String, dynamic> payload;
-    if (info.syncNewest ?? true) {
+    if (info.rooms[roomID]["syncNewest"] ?? true) {
       payload = {"from": info.syncPrevBatch};
     } else {
       payload = {"from": info.rooms[roomID]["prevBatch"]};
@@ -54,17 +54,14 @@ class User extends Requester {
     Map response = await super
         .getRequest(client, url, data: payload, headers: info.accessToken);
 
-    info.rooms[roomID] = {"prevBatch": response["end"] as String};
-    info.syncNewest = false;
+    info.rooms[roomID] = {
+      "syncNewest": false,
+      "prevBatch": response["end"] as String
+    };
     info.writeToFile();
 
     MessageUpdate newMessages =
         MessageUpdate.fromJson(response.cast<String, dynamic>());
-
-    for (MessageInfo message in newMessages.messages) {
-      print(message.content);
-      print(message.sentAt);
-    }
 
     newMessages.writeToFile();
 
