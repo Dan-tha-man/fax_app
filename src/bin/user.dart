@@ -15,15 +15,15 @@ class User extends Requester {
       "type": "m.login.password",
       "user": info.username,
       "password": password,
-      "device_id": info.deviceID ?? getRandomString(10)
+      "device_id": info.deviceId ?? getRandomString(10)
     };
     String url = "/_matrix/client/v3/login";
 
     Map response = await super.postRequest(client, url, data: payload);
 
     info.accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
-    info.userID = response["user_id"];
-    info.deviceID = response["device_id"];
+    info.userId = response["user_id"];
+    info.deviceId = response["device_id"];
 
     print(response);
     info.writeToFile();
@@ -43,18 +43,18 @@ class User extends Requester {
     print(response);
   }
 
-  Future<void> getNewMessages(http.Client client, String roomID) async {
-    String url = "/_matrix/client/v3/rooms/$roomID:$server/messages";
+  Future<void> getNewMessages(http.Client client, String roomId) async {
+    String url = "/_matrix/client/v3/rooms/$roomId:$server/messages";
     Map<String, dynamic> payload;
-    if (info.rooms[roomID]["syncNewest"] ?? true) {
+    if (info.rooms[roomId]["syncNewest"] ?? true) {
       payload = {"from": info.syncPrevBatch};
     } else {
-      payload = {"from": info.rooms[roomID]["prevBatch"]};
+      payload = {"from": info.rooms[roomId]["prevBatch"]};
     }
     Map response = await super
         .getRequest(client, url, data: payload, headers: info.accessToken);
 
-    info.rooms[roomID] = {
+    info.rooms[roomId] = {
       "syncNewest": false,
       "prevBatch": response["end"] as String
     };
@@ -69,9 +69,9 @@ class User extends Requester {
   }
 
   Future<void> sendMessage(
-      http.Client client, String message, String roomID) async {
+      http.Client client, String message, String roomId) async {
     String url =
-        "/_matrix/client/v3/rooms/$roomID:$server/send/m.room.message/${getRandomString(10)}";
+        "/_matrix/client/v3/rooms/$roomId:$server/send/m.room.message/${getRandomString(10)}";
     Map payload = {"msgtype": "m.text", "body": message};
 
     Map response = await super
@@ -79,8 +79,8 @@ class User extends Requester {
     print(response);
   }
 
-  Future<void> joinRoom(http.Client client, String roomID) async {
-    String url = "/_matrix/client/v3/join/$roomID:$server";
+  Future<void> joinRoom(http.Client client, String roomId) async {
+    String url = "/_matrix/client/v3/join/$roomId:$server";
 
     Map response =
         await super.postRequest(client, url, headers: info.accessToken);
@@ -121,9 +121,9 @@ class User extends Requester {
     print(response);
   }
 
-  Future<void> inviteToRoom(http.Client client, String roomID,
+  Future<void> inviteToRoom(http.Client client, String roomId,
       String userToInvite, String? reason) async {
-    String url = "/_matrix/client/v3/rooms/$roomID:$server/invite";
+    String url = "/_matrix/client/v3/rooms/$roomId:$server/invite";
     Map payload = {"reason": reason, "user_id": "@$userToInvite:$server"};
 
     Map response = await super
@@ -132,8 +132,8 @@ class User extends Requester {
   }
 
   Future<void> knockOnRoom(
-      http.Client client, String roomID, String? reason) async {
-    String url = "/_matrix/client/v3/knock/$roomID:$server";
+      http.Client client, String roomId, String? reason) async {
+    String url = "/_matrix/client/v3/knock/$roomId:$server";
     Map payload = {"reason": reason};
 
     Map response = await super

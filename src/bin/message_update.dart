@@ -52,26 +52,26 @@ class MessageUpdate {
 
 class MessageInfo {
   late String type;
-  late String roomID;
-  late String userID;
+  late String roomId;
+  late String userId;
   late Map<String, dynamic> content;
-  late String eventID;
+  late String eventId;
   late DateTime sentAt;
 
   MessageInfo(
       {required this.type,
-      required this.roomID,
-      required this.userID,
+      required this.roomId,
+      required this.userId,
       required this.content,
-      required this.eventID,
+      required this.eventId,
       required this.sentAt});
 
   MessageInfo.fromAPI(Map<String, dynamic> data) {
     type = data["type"] as String;
-    roomID = data["room_id"] as String;
-    userID = data["sender"] as String;
+    roomId = data["room_id"] as String;
+    userId = data["sender"] as String;
     content = data["content"].cast<String, dynamic>();
-    eventID = data["event_id"] as String;
+    eventId = data["event_id"] as String;
     DateTime now = DateTime.now();
     sentAt = DateTime.fromMillisecondsSinceEpoch(
         now.millisecondsSinceEpoch - data["age"] as int);
@@ -79,20 +79,20 @@ class MessageInfo {
 
   MessageInfo.fromJson(Map<String, dynamic> data) {
     type = data["type"] as String;
-    roomID = data["roomID"] as String;
-    userID = data["userID"] as String;
+    roomId = data["roomId"] as String;
+    userId = data["userId"] as String;
     content = data["content"].cast<String, dynamic>();
-    eventID = data["eventID"] as String;
+    eventId = data["eventId"] as String;
     sentAt = DateTime.fromMillisecondsSinceEpoch(data["sentAt"] as int);
   }
 
   Map<String, dynamic> toJson() {
     return {
       "type": type,
-      "roomID": roomID,
-      "userID": userID,
+      "roomId": roomId,
+      "userId": userId,
       "content": content,
-      "eventID": eventID,
+      "eventId": eventId,
       "sentAt": sentAt.millisecondsSinceEpoch,
     };
   }

@@ -9,8 +9,8 @@ class UserInfo {
   bool? syncNewest;
   String? syncPrevBatch;
   Map<String, dynamic> rooms = {};
-  String? userID;
-  String? deviceID;
+  String? userId;
+  String? deviceId;
   Map<String, String>? accessToken;
 
   UserInfo(
@@ -18,18 +18,18 @@ class UserInfo {
       required this.server,
       required this.filePath,
       this.syncPrevBatch,
-      this.userID,
-      this.deviceID,
+      this.userId,
+      this.deviceId,
       this.accessToken});
 
   UserInfo.fromJson(Map<String, dynamic> data) {
     username = data["username"] as String;
     server = data["server"] as String;
-    filePath = data["filePath"] as String;
+    filePath = data["filePath"];
     syncPrevBatch = data["syncPrevBatch"] as String?;
     rooms = data["rooms"].cast<String, dynamic>();
-    userID = data["userID"] as String?;
-    deviceID = data["deviceID"] as String?;
+    userId = data["userId"] as String?;
+    deviceId = data["deviceId"] as String?;
     accessToken = data["accessToken"].cast<String, String>();
   }
 
@@ -40,8 +40,8 @@ class UserInfo {
       "filePath": filePath,
       "syncPrevBatch": syncPrevBatch,
       "rooms": rooms,
-      "userID": userID,
-      "deviceID": deviceID,
+      "userId": userId,
+      "deviceId": deviceId,
       "accessToken": accessToken
     };
   }
