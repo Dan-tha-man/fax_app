@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
+import 'package:hive/hive.dart';
+import 'models/message_update.dart';
+import 'models/user_info.dart';
 import 'user.dart';
-import 'user_info.dart';
 
 void main(List<String> args) async {
   var parser = ArgParser();
@@ -30,25 +31,33 @@ void main(List<String> args) async {
   User user;
 
   Uri pathToScript = Platform.script;
-  Directory baseDir = Directory.fromUri(pathToScript).parent.parent.parent;
+  Directory baseDir = Directory.fromUri(pathToScript).parent.parent;
   Directory dir =
-      await Directory(baseDir.path + '/src').create(recursive: true);
-  String fileName = "user_data.json";
-  String filePath = dir.path + "/" + fileName;
+      await Directory(baseDir.path + '/data').create(recursive: true);
+  String filePath = dir.path;
 
-  UserInfo? info = await checkForUserInfo(filePath);
+  Hive
+    ..init(filePath)
+    ..registerAdapter(UserInfoAdapter())
+    ..registerAdapter(MessageUpdateAdapter())
+    ..registerAdapter(MessageInfoAdapter());
+  var userDb = await Hive.openBox('User');
+  var messagesDb = await Hive.openBox('Messages');
+  await userDb.compact();
+  await messagesDb.compact();
 
-  if (info != null) {
-    user = User(info);
-  } else {
+  if (userDb.get('userInfo') == null) {
     print('Server: ');
     String server = stdin.readLineSync() as String;
     print('Username: ');
     String username = stdin.readLineSync() as String;
-    user =
-        User(UserInfo(username: username, server: server, filePath: filePath));
+    UserInfo userInfo = UserInfo(username: username, server: server);
+    user = User(userInfo);
     print("Password: ");
+    userDb.put('userInfo', userInfo);
     await user.login(client, stdin.readLineSync());
+  } else {
+    user = User(userDb.get('userInfo'));
   }
 
   switch (parserResults['command']) {
@@ -59,7 +68,7 @@ void main(List<String> args) async {
       break;
     case 'messages':
       {
-        await user.getNewMessages(client, parserResults['roomID']);
+        await user.getNewMessages(client, parserResults['roomID'], messagesDb);
       }
       break;
     case 'join':
@@ -100,18 +109,7 @@ void main(List<String> args) async {
     default:
   }
 
+  await userDb.close();
+  await messagesDb.close();
   client.close();
-}
-
-Future<UserInfo?> checkForUserInfo(String filePath) async {
-  File jsonFile = File(filePath);
-
-  bool fileExists = await jsonFile.exists();
-
-  if (fileExists) {
-    return UserInfo.fromJson(jsonDecode(await jsonFile.readAsString()));
-  } else {
-    await jsonFile.create();
-    return null;
-  }
 }
