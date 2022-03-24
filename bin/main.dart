@@ -36,7 +36,7 @@ void main(List<String> args) async {
   User user;
 
   Uri pathToScript = Platform.script;
-  Directory baseDir = Directory.fromUri(pathToScript).parent.parent;
+  Directory baseDir = Directory.fromUri(pathToScript).parent;
   Directory dir =
       await Directory(baseDir.path + '/data').create(recursive: true);
   String filePath = dir.path;

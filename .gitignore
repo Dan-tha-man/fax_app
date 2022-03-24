@@ -23,8 +23,14 @@ doc/api/
 # vscode files
 *.code-workspace
 
+# husky files
+/.husky
+
 # data files
 *.json
 
 # User data
-/data
+*/data
+
+# builds
+/builds
