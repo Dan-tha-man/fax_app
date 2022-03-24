@@ -19,11 +19,12 @@ class UserInfoAdapter extends TypeAdapter<UserInfo> {
     return UserInfo(
       username: fields[0] as String,
       server: fields[1] as String,
-      nextBatch: fields[2] as String?,
-      userId: fields[4] as String?,
-      deviceId: fields[5] as String?,
-      accessToken: (fields[6] as Map?)?.cast<String, String>(),
-    )..rooms = (fields[3] as Map).cast<String, dynamic>();
+    )
+      ..nextBatch = fields[2] as String?
+      ..rooms = (fields[3] as Map).cast<String, RoomInfo>()
+      ..userId = fields[4] as String?
+      ..deviceId = fields[5] as String?
+      ..accessToken = (fields[6] as Map?)?.cast<String, String>();
   }
 
   @override

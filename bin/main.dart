@@ -2,8 +2,13 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
-import 'models/message_update.dart';
+
+import 'models/message_info.dart';
 import 'models/user_info.dart';
+import 'models/room_info.dart';
+import 'models/state_event_info.dart';
+import 'models/event_info.dart';
+
 import 'user.dart';
 
 void main(List<String> args) async {
@@ -39,14 +44,14 @@ void main(List<String> args) async {
   Hive
     ..init(filePath)
     ..registerAdapter(UserInfoAdapter())
-    ..registerAdapter(MessageUpdateAdapter())
+    ..registerAdapter(StateEventInfoAdapter())
+    ..registerAdapter(EventInfoAdapter())
+    ..registerAdapter(RoomInfoAdapter())
     ..registerAdapter(MessageInfoAdapter());
-  var userDb = await Hive.openBox('User');
-  var messagesDb = await Hive.openBox('Messages');
-  await userDb.compact();
-  await messagesDb.compact();
+  var db = await Hive.openBox('User');
+  await db.compact();
 
-  if (userDb.get('userInfo') == null) {
+  if (db.get('userInfo') == null) {
     print('Server: ');
     String server = stdin.readLineSync() as String;
     print('Username: ');
@@ -54,21 +59,32 @@ void main(List<String> args) async {
     UserInfo userInfo = UserInfo(username: username, server: server);
     user = User(userInfo);
     print("Password: ");
-    userDb.put('userInfo', userInfo);
+    db.put('userInfo', userInfo);
     await user.login(client, stdin.readLineSync());
   } else {
-    user = User(userDb.get('userInfo'));
+    user = User(db.get('userInfo'));
   }
 
   switch (parserResults['command']) {
+    case 'initialSync':
+      {
+        await user.initialSync(client);
+      }
+      break;
     case 'sync':
       {
         await user.sync(client);
       }
       break;
-    case 'messages':
+    case 'newMessages':
       {
-        await user.getNewMessages(client, parserResults['roomID'], messagesDb);
+        await user.getMessages(client, parserResults['roomID'], limit: 25);
+      }
+      break;
+    case 'oldMessages':
+      {
+        await user.getMessages(client, parserResults['roomID'],
+            reverse: true, limit: 25);
       }
       break;
     case 'join':
@@ -109,7 +125,6 @@ void main(List<String> args) async {
     default:
   }
 
-  await userDb.close();
-  await messagesDb.close();
+  await db.close();
   client.close();
 }

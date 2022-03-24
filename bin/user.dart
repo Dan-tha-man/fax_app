@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:http/http.dart' as http;
-import 'package:hive/hive.dart';
 import 'requester.dart';
 import 'models/user_info.dart';
-import 'models/message_update.dart';
+
+import 'dart:convert';
 
 class User extends Requester {
   //Class Members
@@ -25,52 +25,60 @@ class User extends Requester {
 
     Map response = await super.postRequest(client, url, data: payload);
 
-    info.accessToken = {"Authorization": "Bearer ${response["access_token"]}"};
-    info.userId = response["user_id"];
-    info.deviceId = response["device_id"];
+    info.saveLogin(response.cast<String, dynamic>());
 
     print(response);
-    info.save();
   }
 
   //Getting and Sending Messages
+  Future<void> initialSync(http.Client client) async {
+    String url = "/_matrix/client/v3/sync";
+    Map response =
+        await super.getRequest(client, url, headers: info.accessToken);
+
+    info.saveInitialSync(response.cast<String, dynamic>());
+    info.printRoomEvents();
+
+    print(response);
+  }
+
   Future<void> sync(http.Client client) async {
     String url = "/_matrix/client/v3/sync";
     Map<String, dynamic> payload = {"since": info.nextBatch};
     Map response = await super
         .getRequest(client, url, data: payload, headers: info.accessToken);
 
-    info.nextBatch = response["next_batch"] as String;
-    info.save();
+    info.saveSync(response.cast<String, dynamic>());
 
-    print(response);
+    // print(response);
+    // ?just to see if this is actually saving the data, will remove in the future
+    for (var roomId in info.rooms.keys) {
+      info.rooms[roomId]?.printMessages();
+      info.rooms[roomId]?.printEvents();
+      info.rooms[roomId]?.printStateEvents();
+    }
   }
 
-  Future<void> getNewMessages(http.Client client, String roomId, Box db) async {
-    String url = "/_matrix/client/v3/rooms/$roomId:$server/messages";
-    Map<String, dynamic> payload;
-    if (info.rooms[roomId]?["syncNewest"] ?? true) {
-      payload = {"from": info.nextBatch};
+  Future<void> getMessages(http.Client client, String roomId,
+      {bool reverse = false, int limit = 10}) async {
+    String url = "/_matrix/client/v3/rooms/$roomId/messages";
+    Map<String, dynamic> payload = {};
+    payload["limit"] = limit.toString();
+    if (reverse == true) {
+      payload["dir"] = "b";
+      payload["from"] = info.rooms[roomId]?.currentPrevBatch;
     } else {
-      payload = {"from": info.rooms[roomId]["end"]};
+      payload["dir"] = "f";
+      if (info.rooms[roomId]?.syncNewest ?? true) {
+        payload["from"] = info.nextBatch;
+      } else {
+        payload["from"] = info.rooms[roomId]?.nextBatch;
+      }
     }
     Map response = await super
         .getRequest(client, url, data: payload, headers: info.accessToken);
 
-    info.rooms[roomId] = {
-      "syncNewest": false,
-      "end": response["end"] as String
-    };
-    info.save();
-
-    MessageUpdate update =
-        MessageUpdate.fromJson(response.cast<String, dynamic>());
-
-    update.saveNewMessages(db);
-
-    // for (MessageInfo message in update.messages) {
-    //   print(message.content);
-    // }
+    info.rooms[roomId]?.saveMessages(response.cast<String, dynamic>());
     print(response);
   }
 
