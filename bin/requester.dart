@@ -49,15 +49,21 @@ class Requester {
   }
 
   Future<Map> getRequest(http.Client client, String url,
-      {Map<String, String>? headers}) async {
+      {Map<String, dynamic>? data, Map<String, String>? headers}) async {
     Map decodedResponse;
     http.Response response;
     Uri fullURL = Uri.https(server, url);
 
-    if (headers == null) {
-      response = await client.get(fullURL);
-    } else {
+    if (headers != null && data != null) {
+      fullURL = Uri.https(server, url, data);
       response = await client.get(fullURL, headers: headers);
+    } else if (headers == null && data != null) {
+      fullURL = Uri.https(server, url, data);
+      response = await client.get(fullURL);
+    } else if (headers != null && data == null) {
+      response = await client.get(fullURL, headers: headers);
+    } else {
+      response = await client.get(fullURL);
     }
 
     decodedResponse = jsonDecode(response.body);
