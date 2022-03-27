@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://github.com/Dan-tha-man/fax_app_cli">
+  <a href="https://github.com/fax-group/fax_app_cli">
     <!-- Please provide path to your logo here -->
     <img src="docs/images/fax_logo.svg" alt="Logo" width="150" height="150">
   </a>
@@ -11,18 +11,18 @@
   <a href="#about"><strong>Explore the screenshots »</strong></a>
   <br />
   <br />
-  <a href="https://github.com/Dan-tha-man/fax_app_cli/issues/new?assignees=&labels=bug&template=bug_report.md&title=[BUG]">Report a Bug</a>
+  <a href="https://github.com/fax-group/fax_app_cli/issues/new?assignees=&labels=bug&template=bug_report.md&title=[BUG]">Report a Bug</a>
   ·
-  <a href="https://github.com/Dan-tha-man/fax_app_cli/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=[FEATURE]">Request a Feature</a>
+  <a href="https://github.com/fax-group/fax_app_cli/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=[FEATURE]">Request a Feature</a>
   .
-  <a href="https://github.com/Dan-tha-man/fax_app_cli/issues/new?assignees=&labels=question&template=support_question.md&title=[QUESTION]">Ask a Question</a>
+  <a href="https://github.com/fax-group/fax_app_cli/issues/new?assignees=&labels=question&template=support_question.md&title=[QUESTION]">Ask a Question</a>
 </div>
 
 <div align="center">
 <br />
 
-[![Project license](https://img.shields.io/github/license/Dan-tha-man/fax_app_cli)](LICENSE)
-[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-5042bc)](https://github.com/Dan-tha-man/fax_app_cli/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+[![Project license](https://img.shields.io/github/license/fax-group/fax_app_cli)](LICENSE)
+[![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-5042bc)](https://github.com/fax-group/fax_app_cli/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 [![code by fax-group](https://img.shields.io/badge/code%20by-fax--group-green)](https://github.com/fax-group)
 
 </div>
@@ -95,17 +95,17 @@
 
 ## Roadmap
 
-See the [open issues](https://github.com/Dan-tha-man/fax_app_cli/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/fax-group/fax_app_cli/issues) for a list of proposed features (and known issues).
 
-- [Top Feature Requests](https://github.com/Dan-tha-man/fax_app_cli/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
-- [Top Bugs](https://github.com/Dan-tha-man/fax_app_cli/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
-- [Newest Bugs](https://github.com/Dan-tha-man/fax_app_cli/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+- [Top Feature Requests](https://github.com/fax-group/fax_app_cli/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
+- [Top Bugs](https://github.com/fax-group/fax_app_cli/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add your votes using the 👍 reaction)
+- [Newest Bugs](https://github.com/fax-group/fax_app_cli/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Support
 
 Reach out to the maintainer at one of the following places:
 
-- [GitHub issues](https://github.com/Dan-tha-man/fax_app_cli/issues/new?assignees=&labels=question&template=support_question.md&title=[QUESTION])
+- [GitHub issues](https://github.com/fax-group/fax_app_cli/issues/new?assignees=&labels=question&template=support_question.md&title=[QUESTION])
 - Contact options listed on [this GitHub Organization](https://github.com/fax-group)
 
 ## Contributing
@@ -118,7 +118,7 @@ Please read [our contribution guidelines](docs/CONTRIBUTING.md), and thank you f
 
 The original setup of this repository is by [fax-group](https://github.com/fax-group).
 
-For a full list of all authors and contributors, see [the contributors page](https://github.com/Dan-tha-man/fax_app_cli/contributors).
+For a full list of all authors and contributors, see [the contributors page](https://github.com/fax-group/fax_app_cli/contributors).
 
 ## Security
 
