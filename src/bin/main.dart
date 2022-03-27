@@ -22,7 +22,7 @@ void main(List<String> args) async {
       allowed: ['public_chat', 'private_chat', 'trusted_private_chat']);
   parser.addOption('topic', abbr: 't', help: 'room topic');
   parser.addOption('alias', abbr: 'a', help: 'room alias');
-  parser.addOption('user', abbr: 'u', help: 'user to invite');
+  parser.addOption('username', abbr: 'u', help: 'user to invite');
   parser.addOption('reason', help: 'reason for invite/knock');
 
   ArgResults parserResults;
@@ -78,15 +78,12 @@ void main(List<String> args) async {
       break;
     case 'create':
       {
-        String? roomName = roomNameIsValid(parserResults['roomName']);
+        String? roomName = roomNameIsValid(parserResults['room-name']);
         String? alias = parserResults['alias'];
         String preset = parserResults['preset']; // FIXME needs to be nullable
         String topic = parserResults['preset']; // FIXME needs to be nullable
         if (roomName != null) {
           await user.createRoom(client, roomName, preset, topic, alias: alias);
-        } else {
-          stdout.write('room name: ');
-          roomName = stdin.readLineSync() as String;
         }
       }
       break;
@@ -95,8 +92,7 @@ void main(List<String> args) async {
         String? message = messageIsValid(parserResults['message']);
         String? roomId = roomIdIsValid(parserResults['roomId']);
         if (message != null && roomId != null) {
-          await user.sendMessage(
-              client, parserResults['message'], parserResults['roomId']);
+          await user.sendMessage(client, message, roomId);
         }
       }
       break;
@@ -107,14 +103,22 @@ void main(List<String> args) async {
       break;
     case 'invite':
       {
-        await user.inviteToRoom(client, parserResults['roomId'],
-            parserResults['user'], parserResults['reason']);
+        String? roomId = roomIdIsValid(parserResults['roomId']);
+        String? username = userNameIsValid(parserResults['username']);
+        String? reason = parserResults['reason'];
+        //FIXME remove typecasting in command below, null should be allowed
+        if (roomId != null && username != null) {
+          await user.inviteToRoom(client, roomId, username, reason);
+        }
       }
       break;
     case 'knock':
       {
-        await user.knockOnRoom(
-            client, parserResults['roomId'], parserResults['reason']);
+        String? roomId = roomIdIsValid(parserResults['roomId']);
+        String? reason = parserResults['reason'];
+        if (roomId != null) {
+          await user.knockOnRoom(client, roomId, reason);
+        }
       }
       break;
     default:
@@ -171,5 +175,17 @@ String? messageIsValid(String? message) {
     return message;
   } else {
     print('need a valid message to send');
+  }
+}
+
+String? userNameIsValid(String? user) {
+  if (user == null) {
+    stdout.write('user: ');
+    user = stdin.readLineSync();
+  }
+  if (user != null) {
+    return user;
+  } else {
+    print('need a valid userId to invite');
   }
 }
