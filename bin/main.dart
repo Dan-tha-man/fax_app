@@ -1,9 +1,15 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
+import 'package:hive/hive.dart';
+
+import 'models/message_info.dart';
+import 'models/user_info.dart';
+import 'models/room_info.dart';
+import 'models/state_event_info.dart';
+import 'models/event_info.dart';
+
 import 'user.dart';
-import 'user_info.dart';
 
 void main(List<String> args) async {
   var parser = ArgParser();
@@ -46,28 +52,57 @@ void main(List<String> args) async {
   User user;
 
   Uri pathToScript = Platform.script;
-  Directory baseDir = Directory.fromUri(pathToScript).parent.parent.parent;
+  Directory baseDir = Directory.fromUri(pathToScript).parent;
   Directory dir =
-      await Directory(baseDir.path + '/src').create(recursive: true);
-  String fileName = "user_data.json";
-  String filePath = dir.path + "/" + fileName;
+      await Directory(baseDir.path + '/data').create(recursive: true);
+  String filePath = dir.path;
 
-  UserInfo? info = await checkForUserInfo(filePath);
+  Hive
+    ..init(filePath)
+    ..registerAdapter(UserInfoAdapter())
+    ..registerAdapter(StateEventInfoAdapter())
+    ..registerAdapter(EventInfoAdapter())
+    ..registerAdapter(RoomInfoAdapter())
+    ..registerAdapter(MessageInfoAdapter());
+  var db = await Hive.openBox('User');
+  await db.compact();
 
-  if (info != null) {
-    user = User(info);
-  } else {
+  if (db.get('userInfo') == null) {
     print('Server: ');
     String server = stdin.readLineSync() as String;
     print('Username: ');
     String username = stdin.readLineSync() as String;
-    user =
-        User(UserInfo(username: username, server: server, filePath: filePath));
+    UserInfo userInfo = UserInfo(username: username, server: server);
+    user = User(userInfo);
     print("Password: ");
+    db.put('userInfo', userInfo);
     await user.login(client, stdin.readLineSync());
+  } else {
+    user = User(db.get('userInfo'));
   }
 
   switch (parserResults['command']) {
+    case 'initialSync':
+      {
+        await user.initialSync(client);
+      }
+      break;
+    case 'sync':
+      {
+        await user.sync(client);
+      }
+      break;
+    case 'newMessages':
+      {
+        await user.getMessages(client, parserResults['roomID'], limit: 25);
+      }
+      break;
+    case 'oldMessages':
+      {
+        await user.getMessages(client, parserResults['roomID'],
+            reverse: true, limit: 25);
+      }
+      break;
     case 'join':
       {
         String? roomId = roomIdIsValid(parserResults['roomId']);
@@ -124,6 +159,7 @@ void main(List<String> args) async {
     default:
   }
 
+  await db.close();
   client.close();
 }
 
