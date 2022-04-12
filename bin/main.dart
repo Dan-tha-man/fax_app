@@ -163,19 +163,6 @@ void main(List<String> args) async {
   client.close();
 }
 
-Future<UserInfo?> checkForUserInfo(String filePath) async {
-  File jsonFile = File(filePath);
-
-  bool fileExists = await jsonFile.exists();
-
-  if (fileExists) {
-    return UserInfo.fromJson(jsonDecode(await jsonFile.readAsString()));
-  } else {
-    await jsonFile.create();
-    return null;
-  }
-}
-
 String? roomIdIsValid(String? roomId) {
   RegExp roomIdScheme = RegExp(r'[!][A-Za-z]{18}');
   if (roomId == null) {
